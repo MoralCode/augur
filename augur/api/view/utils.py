@@ -3,11 +3,12 @@ Defines utility functions used by the augur api views
 """
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-from flask import render_template, flash, url_for
+from flask import render_template, flash, url_for, current_app
 from .init import init_logging
 from .init import *
-from augur.application.db.lib import get_value
 import urllib.error, math, yaml, urllib3, time, math
+
+from augur.application.db.session import DatabaseSession
 
 
 init_logging()
@@ -62,7 +63,9 @@ def getSetting(key, section = "View"):
             return "http://127.0.0.1:5000/api/unstable"
         return settings[key]
     else:
-        return get_value(section, key)
+        with DatabaseSession(logger, engine=current_app.engine) as session:
+            config = AugurConfig(logger, session)
+            return config.get_value(section, key)
 
 loadSettings()
 
