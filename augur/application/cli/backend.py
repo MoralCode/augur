@@ -26,7 +26,7 @@ from augur.tasks.init.redis_connection import get_redis_connection
 from augur.application.db.models import UserRepo
 from augur.application.db.session import DatabaseSession
 from augur.application.logs import AugurLogger
-from augur.application.db.lib import get_value
+from augur.application.config import AugurConfig
 from augur.application.cli import test_connection, test_db_connection, with_database, DatabaseContext
 import sqlalchemy as s
 
@@ -77,27 +77,36 @@ def start(ctx, disable_collection, development, pidfile, port):
     except FileNotFoundError:
         logger.error("\n\nPlease run augur commands in the root directory\n\n")
 
-    host = get_value("Server", "host")
+    with DatabaseSession(logger, engine=ctx.obj.engine) as session:
 
-    if not port:
-        port = get_value("Server", "port")
+        config = AugurConfig(logger, session)
     
+        host = config.get_value("Server", "host")
+
+        if not port:
+            port = config.get_value("Server", "port")
+        
+        core_worker_count = config.get_value("Celery", 'core_worker_count')
+        secondary._worker_count = config.get_value("Celery", 'secondary_worker_count')
+        facade_worker_count = config.get_value("Celery", 'facade_worker_count')
+
+        # Retrieve the log directory from the configuration or default to current directory
+        log_dir = config.get_value("Logging", "logs_directory") or "."
+        gunicorn_log_file = os.path.join(log_dir, "gunicorn.log")
+
+        log_level = config.get_value("Logging", "log_level")
+    
+
     os.environ["AUGUR_PORT"] = str(port)
     
     if disable_collection:
         os.environ["AUGUR_DISABLE_COLLECTION"] = "1"
-    
-    core_worker_count = get_value("Celery", 'core_worker_count')
-    secondary_worker_count = get_value("Celery", 'secondary_worker_count')
-    facade_worker_count = get_value("Celery", 'facade_worker_count')
 
 
     # create rabbit messages so if it failed on shutdown the queues are clean
     cleanup_collection_status_and_rabbit(logger, ctx.obj.engine)
 
-    # Retrieve the log directory from the configuration or default to current directory
-    log_dir = get_value("Logging", "logs_directory") or "."
-    gunicorn_log_file = os.path.join(log_dir, "gunicorn.log")
+
 
     gunicorn_command = f"gunicorn -c {gunicorn_location} -b {host}:{port} augur.api.server:app --log-file {gunicorn_log_file}"
     server = subprocess.Popen(gunicorn_command.split(" "))
@@ -129,7 +138,6 @@ def start(ctx, disable_collection, development, pidfile, port):
             logger.info("Deleting old task schedule")
             os.remove(celery_beat_schedule_db)
 
-    log_level = get_value("Logging", "log_level")
     celery_beat_process = None
     celery_command = f"celery -A augur.tasks.init.celery_app.celery_app beat -l {log_level.lower()} -s {celery_beat_schedule_db}"
     celery_beat_process = subprocess.Popen(celery_command.split(" "))    
@@ -347,9 +355,9 @@ def augur_stop(signal, logger, engine):
 def cleanup_collection_status_and_rabbit(logger, engine):
     clear_redis_caches()
 
-    connection_string = get_value("RabbitMQ", "connection_string")
-
     with DatabaseSession(logger, engine=engine) as session:
+        config = AugurConfig(logger, session)
+        connection_string = config.get_value("RabbitMQ", "connection_string")
 
         clean_collection_status(session)
 
