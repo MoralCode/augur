@@ -61,6 +61,7 @@ def getSetting(key, section = "View"):
     if section == "View":
         if key == "serving":
             return "http://127.0.0.1:5000/api/unstable"
+        # TODO: this should be integrated with AugurConfig
         return settings[key]
     else:
         with DatabaseSession(logger, engine=current_app.engine) as session:
