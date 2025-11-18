@@ -14,18 +14,16 @@ init_logging()
 
 from .init import logger
 
-""" ----------------------------------------------------------------
-loadSettings:
-    This function attempts to load the application settings from the config file
-    (defined in init.py). It is assumed that the filename or file path defined
-    during initialization is sufficient to locate the config file, and that the
-    current process has read access to that file.
-
-    If loading the config file fails, default settings are loaded via
-    init_settings() and an attempt is made to write default settings to the
-    provided config file.
-"""
 def loadSettings():
+    """ This function attempts to load the application settings from the config file
+        (defined in init.py). It is assumed that the filename or file path defined
+        during initialization is sufficient to locate the config file, and that the
+        current process has read access to that file.
+
+        If loading the config file fails, default settings are loaded via
+        init_settings() and an attempt is made to write default settings to the
+        provided config file.
+    """
     global settings
     configFilePath = Path(configFile)
     if not configFilePath.is_file():
@@ -76,10 +74,11 @@ cache_files_requested = []
 """
 def cacheFileExists(filename):
     cache_file = Path(filename)
+    cache_expiry = getSetting('cache_expiry')
     if cache_file.is_file():
-        if(getSetting('cache_expiry') > 0):
+        if(cache_expiry > 0):
             cache_file_age = time.time() - cache_file.stat().st_mtime
-            if(cache_file_age > getSetting('cache_expiry')):
+            if(cache_file_age > cache_expiry):
                 try:
                     cache_file.unlink()
                     logger.info(f"Cache file {filename} removed due to expiry")
