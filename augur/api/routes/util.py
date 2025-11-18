@@ -7,8 +7,8 @@ import pandas as pd
 import json
 from flask import Response, current_app, jsonify
 
-from augur.application.db.lib import get_value
 from augur.application.logs import AugurLogger
+from augur.application.db.session import DatabaseSession
 
 logger = AugurLogger("augur").get_logger()
 
@@ -278,7 +278,11 @@ def get_issues(repo_group_id, repo_id=None):
 @app.route('/{}/api-port'.format(AUGUR_API_VERSION))
 def api_port():
 
-    response = {'port': get_value('Server', 'port')}
+    with DatabaseSession(logger, engine=current_app.engine) as session:
+        config = AugurConfig(logger, session)
+        port = config.get_value('Server', 'port')
+
+    response = {'port': port}
     return Response(response=json.dumps(response),
                     status=200,
                     mimetype="application/json")
