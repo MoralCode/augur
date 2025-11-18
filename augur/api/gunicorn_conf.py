@@ -50,18 +50,13 @@ if is_docker:
 
 ssl_bool = get_value('Server', 'ssl')
 
-if ssl_bool is True: 
+workers = int(get_value('Server', 'workers'))
+bind = '%s:%s' % (get_value("Server", "host"), get_value("Server", "port"))
+timeout = int(get_value('Server', 'timeout'))
 
-    workers = int(get_value('Server', 'workers'))
-    bind = '%s:%s' % (get_value("Server", "host"), get_value("Server", "port"))
-    timeout = int(get_value('Server', 'timeout'))
+if ssl_bool is True: 
     certfile = str(get_value('Server', 'ssl_cert_file'))
     keyfile = str(get_value('Server', 'ssl_key_file'))
-    
-else: 
-    workers = int(get_value('Server', 'workers'))
-    bind = '%s:%s' % (get_value("Server", "host"), get_value("Server", "port"))
-    timeout = int(get_value('Server', 'timeout'))
 
 
 def worker_exit(server, worker):
