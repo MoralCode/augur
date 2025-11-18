@@ -22,7 +22,6 @@ from augur.tasks.data_analysis.contributor_breadth_worker.contributor_breadth_wo
 from augur.application.db.models import UserRepo
 from augur.application.db.session import DatabaseSession
 from augur.application.logs import AugurLogger
-from augur.application.db.lib import get_value
 from augur.application.cli import test_connection, test_db_connection, with_database, DatabaseContext
 from augur.application.cli._cli_util import _broadcast_signal_to_processes, raise_open_file_limit, clear_redis_caches, clear_rabbitmq_messages
 
@@ -78,9 +77,15 @@ def start(ctx, development):
         os.environ["AUGUR_DEV"] = "1"
         logger.info("Starting in development mode")
 
-    core_worker_count = get_value("Celery", 'core_worker_count')
-    secondary_worker_count = get_value("Celery", 'secondary_worker_count')
-    facade_worker_count = get_value("Celery", 'facade_worker_count')
+    with DatabaseSession(logger, engine=ctx.obj.engine) as session:
+        config = AugurConfig(logger, session)
+    
+        core_worker_count = config.get_value("Celery", 'core_worker_count')
+        secondary_worker_count = config.get_value("Celery", 'secondary_worker_count')
+        facade_worker_count = config.get_value("Celery", 'facade_worker_count')
+
+        log_level = config.get_value("Logging", "log_level")
+
 
     process_list = start_celery_collection_processes((core_worker_count, secondary_worker_count, facade_worker_count))
 
@@ -88,7 +93,6 @@ def start(ctx, development):
             logger.info("Deleting old task schedule")
             os.remove("celerybeat-schedule.db")
 
-    log_level = get_value("Logging", "log_level")
     celery_beat_process = None
     celery_command = f"celery -A augur.tasks.init.celery_app.celery_app beat -l {log_level.lower()}"
     celery_beat_process = subprocess.Popen(celery_command.split(" "))    
@@ -271,9 +275,9 @@ def cleanup_after_collection_halt(logger_instance, engine):
     
     queues = ['celery', 'core', 'secondary','scheduling','facade']
 
-    connection_string = get_value("RabbitMQ", "connection_string")
-
     with DatabaseSession(logger_instance, engine) as session:
+        config = AugurConfig(logger_instance, session)
+        connection_string = config.get_value("RabbitMQ", "connection_string")
         clean_collection_status(session)
 
     clear_rabbitmq_messages(connection_string, queues, logger_instance)
