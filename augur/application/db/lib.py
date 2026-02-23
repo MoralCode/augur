@@ -9,7 +9,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import OperationalError
 from psycopg2.errors import DeadlockDetected
 from typing import List, Any, Optional, Union
-from warnings import deprecated
+from augur.application.util import deprecated
 
 from augur.application.db.models import Config, Repo, Commit, WorkerOauth, Issue, PullRequest, PullRequestReview, ContributorsAlias,UnresolvedCommitEmail, Contributor, CollectionStatus, UserGroup, RepoGroup
 from augur.tasks.util.collection_state import CollectionState
