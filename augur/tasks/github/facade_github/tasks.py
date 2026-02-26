@@ -122,7 +122,11 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             #"tool_version": interface.tool_version,
             #"data_source": interface.data_source
         }
+        if user_data.cntrb_canonical is None:
+            user_data.cntrb_canonical = emailFromCommitData
 
+        if user_data.cntrb_full_name is None:
+            user_data.cntrb_full_name = name_field
 
         
         #Executes an upsert with sqlalchemy 
