@@ -97,6 +97,9 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         
         cntrb = user_data.asdict()
 
+        # inject the github urls back in for insertion later (we dont need to do this)
+        cntrb.extend(github_data_access.user_endpoint_urls(login))
+        
         #Executes an upsert with sqlalchemy 
         cntrb_natural_keys = ['cntrb_id']
         batch_insert_contributors(logger, [cntrb])
