@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs, urlencode
 from keyman.KeyClient import KeyClient
 from .AugurForgeUser import AugurForgeUser 
 from .util import AugurPlatformType
+from datetime import datetime
 
 GITHUB_RATELIMIT_REMAINING_CAP = 50
 
@@ -154,8 +155,8 @@ class GithubDataAccess:
             email = user_data.get("email"),
             user_type = user_data.get("type"),
             is_admin = bool(user_data.get("site_admin")),
-            created_at = user_data.get("created_at"),# TODO: cast to datetime/parse
-            updated_at = user_data.get("updated_at"),# TODO: cast to datetime/parse
+            created_at = datetime.fromisoformat(user_data.get("created_at")),
+            updated_at = datetime.fromisoformat(user_data.get("updated_at")),
             source_forge_type = AugurPlatformType.GITHUB,
             source_forge_domain = self._base_domain()
         )
