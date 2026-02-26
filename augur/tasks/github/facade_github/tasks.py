@@ -69,7 +69,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             logger.error("Failed to get login from supplemental data!")
             continue
 
-        url = ("https://api.github.com/users/" + login)
+        url = github_data_access.user_endpoint_url(login)
 
         try:
             user_data = github_data_access.get_resource(url)
