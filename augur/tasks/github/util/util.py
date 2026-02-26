@@ -11,7 +11,7 @@ from augur.tasks.util.worker_util import calculate_date_weight_from_timestamps
 from enum import Enum
 
 class AugurPlatformType(Enum):
-    UNKNOWN = 0
+    UNRESOLVEABLE = 0
     GITHUB = 1
     GITLAB = 2
 
