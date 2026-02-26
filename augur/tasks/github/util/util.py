@@ -8,6 +8,12 @@ from augur.tasks.github.util.github_random_key_auth import GithubRandomKeyAuth
 from augur.tasks.github.util.github_graphql_data_access import GithubGraphQlDataAccess
 from augur.application.db.lib import get_repo_by_repo_git
 from augur.tasks.util.worker_util import calculate_date_weight_from_timestamps
+from enum import Enum
+
+class AugurPlatformType(Enum):
+    UNKNOWN = 0
+    GITHUB = 1
+    GITLAB = 2
 
 def get_repo_src_id(owner, repo, logger):
     

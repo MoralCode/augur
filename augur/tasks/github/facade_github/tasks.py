@@ -9,7 +9,7 @@ from augur.tasks.github.facade_github.core import *
 from augur.application.db.lib import execute_sql, get_contributor_aliases_by_email, get_unresolved_commit_emails_by_email, get_contributors_by_full_name, get_repo_by_repo_git, batch_insert_contributors, get_batch_size
 from augur.application.db.lib import get_session, execute_session_query
 from augur.tasks.git.util.facade_worker.facade_worker.facade00mainprogram import *
-
+from augur.tasks.github.facade_github.util.util import AugurPlatformType
 
 
 
@@ -193,7 +193,7 @@ def link_commits_to_contributor(logger, facade_helper, contributorQueue):
 def insert_facade_contributors(self, repo_git):
 
     # Set platform id to 1 since this task is github specific
-    platform_id = 1
+    platform_id = AugurPlatformType.GITHUB.value
 
     logger = logging.getLogger(insert_facade_contributors.__name__)
     repo = get_repo_by_repo_git(repo_git)
