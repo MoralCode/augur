@@ -68,11 +68,9 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         if login == None or login == "":
             logger.error("Failed to get login from supplemental data!")
             continue
-
-        url = github_data_access.user_endpoint_url(login)
-
+        
         try:
-            user_data = github_data_access.get_resource(url)
+            user_data = github_data_access.get_user(login)
         except UrlNotFoundException as e:
             logger.warning(f"User of {login} not found on github. Skipping...")
             continue
