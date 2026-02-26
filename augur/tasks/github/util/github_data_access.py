@@ -4,6 +4,7 @@ import httpx
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception, RetryError
 from urllib.parse import urlparse, parse_qs, urlencode
 from keyman.KeyClient import KeyClient
+from .AugurForgeUser import AugurForgeUser 
 
 GITHUB_RATELIMIT_REMAINING_CAP = 50
 
@@ -125,6 +126,30 @@ class GithubDataAccess:
         url = self.user_endpoint_url(username)
 
         return self.get_resource(url)
+
+    @staticmethod
+    def _user_response_to_user(user_data: dict) -> AugurForgeUser:
+        """Transform a user object from GitHub's API into an AugurForgeUser for passing around Augur.
+
+        Args:
+            user_data (dict): The user data as a dict from GitHub's API
+
+        Returns:
+            AugurForgeUser: An Augur-specific object representing a user
+        """
+        return AugurForgeUser(
+            identifier = user_data.get("id"),
+            username = user_data.get("login"),
+            name = user_data.get("name"),
+            company = user_data.get("company"),
+            location = user_data.get("location"),
+            email = user_data.get("email"),
+            user_type = user_data.get("type"),
+            is_admin = bool(user_data.get("site_admin")),
+            created_at = user_data.get("created_at"),# TODO: cast to datetime/parse
+            updated_at = user_data.get("updated_at"),# TODO: cast to datetime/parse
+        )
+        
 
     def get_resource_count(self, url):
 
