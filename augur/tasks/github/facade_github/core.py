@@ -25,12 +25,6 @@ def query_github_contributors(logger, key_auth, github_url):
         logger.error(f"Encountered bad url: {github_url}")
         raise e
 
-    # Set the base of the url and place to hold contributors to insert
-    contributors_url = (
-        f"https://api.github.com/repos/{owner}/{name}/" +
-        "contributors?state=all"
-    )
-
     # Get contributors that we already have stored
     #   Set our duplicate and update column map keys (something other than PK) to
     #   check dupicates/needed column updates with
@@ -40,6 +34,9 @@ def query_github_contributors(logger, key_auth, github_url):
     duplicate_col_map = {'cntrb_login': 'login'}
 
     github_data_access = GithubDataAccess(key_auth, logger)
+
+    # Set the base of the url and place to hold contributors to insert
+    contributors_url = github_data_access.contributors_endpoint_url(owner, repo) + "?state=all"
 
     contributor_count = github_data_access.get_resource_count(contributors_url)
 
