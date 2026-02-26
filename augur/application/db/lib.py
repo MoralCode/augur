@@ -513,18 +513,21 @@ def get_pull_request_reviews_by_repo_id(repo_id):
         return session.query(PullRequestReview).filter(PullRequestReview.repo_id == repo_id).all()
     
 def get_contributor_aliases_by_email(email):
+    """ perform a local database lookup to fetch contributor aliases """
 
     with get_session() as session:
 
         return session.query(ContributorsAlias).filter_by(alias_email=email).all()
 
 def get_unresolved_commit_emails_by_email(email):
+    """ perform a local database lookup to fetch unresolved commit emails """
 
     with get_session() as session:
 
         return session.query(UnresolvedCommitEmail).filter_by(email=email).all()
  
 def get_contributors_by_full_name(full_name):
+    """ perform a local database lookup to fetch existing contributors by name """
     if not full_name or full_name == '':
         return None 
 
@@ -533,6 +536,7 @@ def get_contributors_by_full_name(full_name):
         return session.query(Contributor).filter_by(cntrb_full_name=full_name).all()
     
 def get_contributors_by_github_user_id(id):
+    """ perform a local database lookup to fetch existing contributors by github user id """
 
     with get_session() as session:
 
