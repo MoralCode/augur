@@ -83,10 +83,6 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         name_field = contributor['commit_name'] if 'commit_name' in contributor else contributor['name']
 
 
-        cntrb_id = GithubUUID()
-        cntrb_id["user"] = int(user_data['id'])
-        cntrb_id["platform"] = platform_id
-
         if user_data.cntrb_canonical is None:
             user_data.cntrb_canonical = emailFromCommitData
 
@@ -99,6 +95,10 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
 
         # inject the github urls back in for insertion later (we dont need to do this)
         cntrb.extend(github_data_access.user_endpoint_urls(login))
+
+        cntrb_id = GithubUUID()
+        cntrb_id["user"] = int(user_data.identifier)
+        cntrb['cntrb_id'] = cntrb_id.to_UUID()
         
         #Executes an upsert with sqlalchemy 
         cntrb_natural_keys = ['cntrb_id']
