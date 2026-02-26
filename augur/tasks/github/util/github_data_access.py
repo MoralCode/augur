@@ -5,6 +5,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception, 
 from urllib.parse import urlparse, parse_qs, urlencode
 from keyman.KeyClient import KeyClient
 from .AugurForgeUser import AugurForgeUser 
+from .util import AugurPlatformType
 
 GITHUB_RATELIMIT_REMAINING_CAP = 50
 
@@ -135,8 +136,7 @@ class GithubDataAccess:
 
         return self.get_resource(url)
 
-    @staticmethod
-    def _user_response_to_user(user_data: dict) -> AugurForgeUser:
+    def _user_response_to_user(self, user_data: dict) -> AugurForgeUser:
         """Transform a user object from GitHub's API into an AugurForgeUser for passing around Augur.
 
         Args:
@@ -156,6 +156,8 @@ class GithubDataAccess:
             is_admin = bool(user_data.get("site_admin")),
             created_at = user_data.get("created_at"),# TODO: cast to datetime/parse
             updated_at = user_data.get("updated_at"),# TODO: cast to datetime/parse
+            source_forge_type = AugurPlatformType.GITHUB,
+            source_forge_domain = self._base_domain()
         )
         
 

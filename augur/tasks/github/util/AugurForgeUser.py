@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-# from .util import AugurPlatformType
+from .util import AugurPlatformType
 from datetime import datetime
 
 @dataclass
@@ -17,4 +17,5 @@ class AugurForgeUser:
     is_admin: bool
     created_at: datetime
     updated_at: datetime
-    # forgeType: AugurPlatformType
+    source_forge_type: AugurPlatformType # heh sourceforge
+    source_forge_domain: str
