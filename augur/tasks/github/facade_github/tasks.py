@@ -15,7 +15,7 @@ from augur.tasks.github.facade_github.util.util import AugurPlatformType, remap_
 
 def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id):
 
-    github_data_access = GithubDataAccess(auth, logger)
+    platform_data_access = GithubDataAccess(auth, logger)
 
     for contributor in contributorQueue:
         # Get the email from the commit data
@@ -70,7 +70,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             continue
         
         try:
-            user_data = github_data_access.get_user(login)
+            user_data = platform_data_access.get_user(login)
         except UrlNotFoundException as e:
             logger.warning(f"User of {login} not found on github. Skipping...")
             continue
@@ -108,7 +108,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         cntrb = remap_dict_keys(cntrb, user_to_db_field_map)
 
         # inject the github urls back in for insertion later (we only need to do this for storing them in the DB)
-        cntrb.extend(github_data_access.user_endpoint_urls(login))
+        cntrb.extend(platform_data_access.user_endpoint_urls(login))
 
         cntrb['cntrb_canonical'] = cntrb['cntrb_email']
         cntrb['cntrb_login'] = cntrb['gh_login']
