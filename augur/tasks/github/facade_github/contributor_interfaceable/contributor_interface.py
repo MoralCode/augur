@@ -223,3 +223,94 @@ def update_contributor(self, cntrb, max_attempts=3):
         attempts += 1
 """
 
+def get_login_with_supplemental_data(logger, platform_data_access, supplemental_data):
+
+    # This is a github only process for now
+    # we need platform specific logic here to parse the search result.
+    # additionally, I have not looked at other platforms search APIs to see if
+    # theres a way to genericize it into ContributorResolveable
+    # this should probably be done eventually - AE
+    if platform_data_access.platform_type != AugurPlatformType.GITHUB:
+        return None
+
+    email_raw = supplemental_data.get('email_raw')
+    # TODO: sanitize email
+
+    email_valid = email_raw and isinstance(email_raw, str) and len(email_raw.strip()) > 3
+
+
+    # Try to get the 'names' field if 'commit_name' field is not present in contributor data.
+    name_field = 'cmt_author_name' if 'commit_name' in supplemental_data else 'name'
+
+    split_name = supplemental_data[name_field].split()
+
+    name_valid = len(split_name) < 2
+
+    has_results = False
+    
+    if email_valid:
+        # Note: I added "+type:user" to avoid having user owned organizations be returned
+        search_result = platform_data_access.perform_search("users", f"{email_raw} in:email type:user")
+        
+        # Check if the email result got anything, if it failed, place in unresolved and try a name search.
+        has_results = search_result is None or 'total_count' not in search_result or search_result['total_count'] == 0
+
+        if not has_results:
+    
+            unresolved = {
+                "email": email_raw,
+                "name": supplemental_data['name'],
+            }
+            logger.debug(f"Inserting data to unresolved: {unresolved}")
+
+            try:
+                unresolved_natural_keys = ['email']
+                bulk_insert_dicts(logger, unresolved, UnresolvedCommitEmail, unresolved_natural_keys)
+            except Exception as e:
+                logger.error(
+                    f"Could not create new unresolved email {unresolved['email']}. Error: {e}")
+    else:
+        logger.info("Commit does not contain a valid 'email_raw' value.")
+
+    
+    if name_valid:
+
+        # do a name search if the email one didnt work
+
+        if not has_results:
+            search_result = platform_data_access.perform_search("users", f'fullname:{split_name[0]} {split_name[-1]}')
+
+
+    else:
+        # Deal with case where name is one word or none.
+        logger.warning("name found during contributor resolution is not at least two words")
+        # TODO: skip to the processing step
+    
+
+    # process any results
+    if has_results:
+        
+        # total_count is the count of username's found by the endpoint.
+        if search_result is None or 'total_count' not in search_result:
+            logger.error(
+                "Search queries returned an empty response, moving on...\n")
+            return None
+        if search_result['total_count'] == 0:
+            logger.error(
+                "Search queries did not return any results, adding commit's table remains null...\n")
+            return None
+
+        # Grab first result and make sure it has the highest match score
+        try:
+            match = search_result['items'][0]
+        except IndexError as e:
+            logger.error(f"Ran into error {e} when parsing users search results\n return dict: {search_result}")
+            return None
+
+        for item in search_result['items']:
+            if item['score'] > match['score']:
+                match = item
+
+        logger.debug(f"When searching for a contributor, we found the following users: {match}\n")
+
+        return match['login']

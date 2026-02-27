@@ -83,7 +83,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         if login == None or login == "":
             logger.warning("Failed to get login from commit hash")
             # Try to get the login from supplemental data if not found with the commit hash
-            login = get_login_with_supplemental_data(logger, auth,contributor)
+            login = get_login_with_supplemental_data(logger, platform_data_access, contributor)
     
         if login == None or login == "":
             logger.error("Failed to get login from supplemental data!")
