@@ -110,6 +110,10 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         # inject the github urls back in for insertion later (we only need to do this for storing them in the DB)
         cntrb.extend(github_data_access.user_endpoint_urls(login))
 
+        cntrb['cntrb_canonical'] = cntrb['cntrb_email']
+        cntrb['cntrb_login'] = cntrb['gh_login']
+
+
         cntrb_id = GithubUUID()
         cntrb_id["user"] = int(user_data.identifier)
         cntrb['cntrb_id'] = cntrb_id.to_UUID()
