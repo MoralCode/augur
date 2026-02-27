@@ -11,6 +11,8 @@ from augur.application.db.lib import get_session, execute_session_query
 from augur.tasks.git.util.facade_worker.facade_worker.facade00mainprogram import *
 from augur.tasks.github.facade_github.util.util import AugurPlatformType, remap_dict_keys
 
+from dataclasses import asdict
+
 
 
 def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id):
@@ -56,12 +58,6 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             login = contributors_with_matching_name[0].gh_login
 
 
-        logger.debug(
-        f"Trying to create endpoint from commit hash: {commit_sha}")
-
-        # https://api.github.com/repos/chaoss/augur/commits/53b0cc122ac9ecc1588d76759dc2e8e437f45b48
-
-
         #stmnt = s.select(Repo.repo_path, Repo.repo_name).where(Repo.repo_id == repo_id)
         result = get_repo_by_repo_id(repo_id)
 
@@ -86,7 +82,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             login = get_login_with_supplemental_data(logger, platform_data_access, contributor)
     
         if login == None or login == "":
-            logger.error("Failed to get login from supplemental data!")
+            logger.error("Failed to get login after attempting all possible options!")
             continue
         
         try:
@@ -111,7 +107,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
 
         
         
-        cntrb = user_data.asdict()
+        cntrb = asdict(user_data)
 
         user_to_db_field_map = {
             'created_at': "cntrb_created_at",
@@ -145,6 +141,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         
         #Executes an upsert with sqlalchemy 
         cntrb_natural_keys = ['cntrb_id']
+        # TODO: why are we calling a batch insert for one contributor
         batch_insert_contributors(logger, [cntrb])
 
         try:

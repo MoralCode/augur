@@ -4,6 +4,7 @@ import uuid
 import typing
 
 class AugurUUID:
+    # this assumes that any Augur instance wouldn't have more than 255 platforms in the platform table
     struct = {
         "platform": {"start": 0, "size": 1}
     }
