@@ -114,8 +114,13 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         cntrb['cntrb_login'] = cntrb['gh_login']
 
 
+        # Because we overwrite the platform ID, this basically acts as a stand in for a generic UUID initializer
+        # Because AugurUUID doesnt (seem to) define all the fields, we are reusing the github one 
+        # In the future this should probably be a factory method of some kind
         cntrb_id = GithubUUID()
         cntrb_id["user"] = int(user_data.identifier)
+        cntrb_id["platform"] = user_data.source_forge_type.value
+
         cntrb['cntrb_id'] = cntrb_id.to_UUID()
         
         #Executes an upsert with sqlalchemy 
