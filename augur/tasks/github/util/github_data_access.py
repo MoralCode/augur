@@ -44,6 +44,8 @@ class GithubDataAccess(ContributorResolveable):
     that is derived from githubs API responses to keep all platform-specific parsing here.
     """
 
+    platform_type = AugurPlatformType.GITHUB
+
     def _base_domain(self) -> str:
         """the base domain against which api calls are assembled
 
