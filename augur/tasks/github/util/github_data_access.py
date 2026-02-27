@@ -121,8 +121,22 @@ class GithubDataAccess(ContributorResolveable):
             "events_url": user_url + "/events{/privacy}",
             "received_events_url": f"{user_url}/received_events",
         }
-
     
+    def commit_endpoint_url(self, owner:str, repo:str, commit_hash: str, trailing_slash = True) -> str:
+        """the github REST API url for an endpoint to fetch a single commit
+
+        Args:
+            owner (str): the owner/org of the repo
+            repo (str): the repo name
+            commit_hash (str): the hash of the repo to query
+            trailing_slash (bool, optional): Whether to include the trailing slash or not. Defaults to True.
+
+        Returns:
+            str: the assembled URL with values filled in. Example: https://api.github.com/repos/owner/repo/commits/<hash>
+        """
+    
+        return f"{self._base_url()}repos/{owner}/{repo}/commits/{commit_hash}" + ("/" if trailing_slash else "")
+
     def __init__(self, key_manager, logger: logging.Logger, feature="rest"):
     
         self.logger = logger

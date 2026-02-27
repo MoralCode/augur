@@ -118,31 +118,6 @@ def create_endpoint_from_email(email):
     return url
 
 
-def create_endpoint_from_commit_sha(logger, commit_sha, repo_id):
-    logger.debug(
-        f"Trying to create endpoint from commit hash: {commit_sha}")
-
-    # https://api.github.com/repos/chaoss/augur/commits/53b0cc122ac9ecc1588d76759dc2e8e437f45b48
-
-
-    #stmnt = s.select(Repo.repo_path, Repo.repo_name).where(Repo.repo_id == repo_id)
-    result = get_repo_by_repo_id(repo_id)
-
-    if result.repo_path is None or result.repo_name is None:
-        raise KeyError
-
-    # Else put into a more readable local var
-
-    split_git = result.repo_git.split('/')
-    repo_name_and_org = split_git[-2] + "/" + result.repo_name
-
-    url = "https://api.github.com/repos/" + repo_name_and_org + "/commits/" + commit_sha
-
-    logger.debug(f"Commit Hash URL: {url}")
-
-    return url
-
-
 def create_endpoint_from_name(contributor):
     """Try to construct the best url to ping GitHub's API for a username given a full name.
 

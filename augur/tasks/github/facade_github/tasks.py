@@ -54,6 +54,25 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             logger.debug("Failed local login lookup")
         else:
             login = contributors_with_matching_name[0].gh_login
+
+
+        logger.debug(
+        f"Trying to create endpoint from commit hash: {commit_sha}")
+
+        # https://api.github.com/repos/chaoss/augur/commits/53b0cc122ac9ecc1588d76759dc2e8e437f45b48
+
+
+        #stmnt = s.select(Repo.repo_path, Repo.repo_name).where(Repo.repo_id == repo_id)
+        result = get_repo_by_repo_id(repo_id)
+
+        if result.repo_path is None or result.repo_name is None:
+            raise KeyError
+
+        # Else put into a more readable local var
+
+        split_git = result.repo_git.split('/')
+        owner = split_git[-2]
+        repo = result.repo_name
         
 
         # Try to get the login from the commit sha
