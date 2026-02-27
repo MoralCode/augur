@@ -133,17 +133,13 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             return 
         
 
-        #Replace each instance of a single or double quote with escape characters 
-        #for postgres
-        escapedEmail = email.replace('"',r'\"')
-        escapedEmail = escapedEmail.replace("'",r'\'')
         # Resolve any unresolved emails if we get to this point.
         # They will get added to the alias table later
         # Do this last to absolutely make sure that the email was resolved before we remove it from the unresolved table.
         query = s.sql.text("""
             DELETE FROM unresolved_commit_emails
             WHERE email=:email
-        """).bindparams(email=escapedEmail)
+        """).bindparams(email=email)
 
         logger.debug(f"Updating now resolved email {email}")
 
