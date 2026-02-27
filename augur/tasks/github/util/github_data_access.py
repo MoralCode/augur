@@ -173,6 +173,10 @@ class GithubDataAccess(ContributorResolveable):
         Returns:
             AugurForgeUser: An Augur-specific object representing a user
         """
+        if user_data is None:
+            return None
+        created_at = user_data.get("created_at")
+        updated_at = user_data.get("updated_at")
         return AugurForgeUser(
             identifier = user_data.get("id"),
             username = user_data.get("login"),
@@ -182,8 +186,8 @@ class GithubDataAccess(ContributorResolveable):
             email = user_data.get("email"),
             user_type = user_data.get("type"),
             is_admin = bool(user_data.get("site_admin")),
-            created_at = datetime.fromisoformat(user_data.get("created_at")),
-            updated_at = datetime.fromisoformat(user_data.get("updated_at")),
+            created_at = datetime.fromisoformat(created_at) if created_at is not None else None,
+            updated_at = datetime.fromisoformat(updated_at) if updated_at is not None else None,
             source_forge_type = AugurPlatformType.GITHUB,
             source_forge_domain = self._base_domain()
         )
