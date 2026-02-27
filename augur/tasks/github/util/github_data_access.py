@@ -185,6 +185,11 @@ class GithubDataAccess(ContributorResolveable):
 
         return self._user_response_to_user(login_json['author']), self._user_response_to_user(login_json['author'])
 
+    def perform_search(self, topic: str, query: str):
+        url = self.search_endpoint(topic, query)
+        return self.get_resource(url)
+
+
     def _user_response_to_user(self, user_data: dict) -> AugurForgeUser:
         """Transform a user object from GitHub's API into an AugurForgeUser for passing around Augur.
 
