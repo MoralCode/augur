@@ -36,7 +36,7 @@ class ResourceGoneException(Exception):
     def __init__(self, message="Resource returned HTTP 410 Gone. It is likely intentionally removed"):
         super().__init__(message)
 
-class GithubDataAccess:
+class GithubDataAccess(ContributorResolveable):
     """Utilities for accessing the GitHub REST API
     """
 
@@ -132,10 +132,10 @@ class GithubDataAccess:
         self.expired_keys_for_request = []
 
 
-    def get_user(self, username:str):
+    def get_user(self, username:str) -> AugurForgeUser:
         url = self.user_endpoint_url(username)
 
-        return self.get_resource(url)
+        return self._user_response_to_user(self.get_resource(url))
 
     def _user_response_to_user(self, user_data: dict) -> AugurForgeUser:
         """Transform a user object from GitHub's API into an AugurForgeUser for passing around Augur.
