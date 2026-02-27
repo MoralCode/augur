@@ -108,16 +108,6 @@ def request_dict_from_endpoint(logger, session, url, timeout_wait=10):
     return response_data
 
 
-def create_endpoint_from_email(email):
-    # Note: I added "+type:user" to avoid having user owned organizations be returned
-    # Also stopped splitting per note above.
-    url = 'https://api.github.com/search/users?q={}+in:email+type:user'.format(
-        email)
-    
-
-    return url
-
-
 def create_endpoint_from_name(contributor):
     """Try to construct the best url to ping GitHub's API for a username given a full name.
 
