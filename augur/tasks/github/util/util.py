@@ -15,6 +15,27 @@ class AugurPlatformType(Enum):
     GITHUB = 1
     GITLAB = 2
 
+def remap_dict_keys(data: dict, keymap: dict, allow_unmapped_keys=True) -> dict:
+    """Re-maps a provided dictionary's keys according to the provided mapping
+
+    Args:
+        data (dict): the incoming data
+        keymap (dict): the key mapping to apply
+        allow_unmapped_keys (str): Whether to allow (pass through) or filter keys that arent specified in the map. Defaults to allow (True)
+
+    Returns:
+        dict: a dict with the keys remapped and the same values as the incoming data
+    """
+    result = {}
+    for name, val in data.items():
+        mapped_key = keymap.get(name)
+        if not allow_unmapped_keys and mapped_key is None:
+            continue
+
+        result[mapped_key or name] = val
+    return result
+
+
 def get_repo_src_id(owner, repo, logger):
     
 

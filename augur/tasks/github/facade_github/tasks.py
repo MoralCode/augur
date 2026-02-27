@@ -9,7 +9,7 @@ from augur.tasks.github.facade_github.core import *
 from augur.application.db.lib import execute_sql, get_contributor_aliases_by_email, get_unresolved_commit_emails_by_email, get_contributors_by_full_name, get_repo_by_repo_git, batch_insert_contributors, get_batch_size
 from augur.application.db.lib import get_session, execute_session_query
 from augur.tasks.git.util.facade_worker.facade_worker.facade00mainprogram import *
-from augur.tasks.github.facade_github.util.util import AugurPlatformType
+from augur.tasks.github.facade_github.util.util import AugurPlatformType, remap_dict_keys
 
 
 
@@ -92,6 +92,20 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         
         
         cntrb = user_data.asdict()
+
+        user_to_db_field_map = {
+            'created_at': "cntrb_created_at",
+            'updated_at': "cntrb_last_used",
+            'email': "cntrb_email",
+            'company': "cntrb_company",
+            'location': "cntrb_location",
+            'identifier': "gh_user_id",
+            'username': "gh_login",
+            'user_type': "gh_type",
+            'is_admin': "gh_site_admin",
+            'name': "cntrb_full_name",
+        }
+        cntrb = remap_dict_keys(cntrb, user_to_db_field_map)
 
         # inject the github urls back in for insertion later (we only need to do this for storing them in the DB)
         cntrb.extend(github_data_access.user_endpoint_urls(login))
