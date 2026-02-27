@@ -5,8 +5,8 @@ class ContributorResolveable():
     """Interface class defining methods that all API endpoint classes must share in order to resolve contributors
     """
 
-    def get_user_by_commit(self, owner:str, repo: str, commit_hash:str) -> AugurForgeUser:
-        """Look up a user on this platform by a known commit they made
+    def get_users_by_commit(self, owner:str, repo: str, commit_hash:str) -> tuple[AugurForgeUser, AugurForgeUser]:
+        """Look up the users on this platform associated with a known commit
         This is the successor to the legacy get_login_with_commit_hash() method
 
         Args:
@@ -15,7 +15,8 @@ class ContributorResolveable():
             commit_hash (str): the hash of the commit known to have been made by the intended user being looked up.
 
         Returns:
-            AugurForgeUser: An augur internal forge user instance that can be passed around the application.
+            tuple: A tuple of up to two augur internal forge user instance that can be passed around the application.
+                The first is for the author, the second is for the committer.
         """
         raise NotImplementedError("This is a method defined in an interface class that needs to be implemented")
 
