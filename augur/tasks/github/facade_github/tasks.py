@@ -142,8 +142,8 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         # Do this last to absolutely make sure that the email was resolved before we remove it from the unresolved table.
         query = s.sql.text("""
             DELETE FROM unresolved_commit_emails
-            WHERE email='{}'
-        """.format(escapedEmail))
+            WHERE email=:email
+        """).bindparams(email=escapedEmail)
 
         logger.debug(f"Updating now resolved email {email}")
 
