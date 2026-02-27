@@ -77,7 +77,8 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
 
         # Try to get the login from the commit sha
         if login == None or login == "":
-            login = get_login_with_commit_hash(logger, auth, contributor, repo_id)
+            author = platform_data_access.get_users_by_commit(owner, repo, contributor['hash'])[0]
+            login = author.username
     
         if login == None or login == "":
             logger.warning("Failed to get login from commit hash")

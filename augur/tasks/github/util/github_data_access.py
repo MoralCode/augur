@@ -151,6 +151,19 @@ class GithubDataAccess(ContributorResolveable):
 
         return self._user_response_to_user(self.get_resource(url))
 
+    def get_users_by_commit(self, owner:str, repo: str, commit_hash:str) -> tuple[AugurForgeUser, AugurForgeUser]:
+
+        url = self.commit_endpoint_url(owner, repo, commit_hash)
+
+        login_json = self.get_resource(url)
+
+        # TODO: Why are we returning None if 'sha' is not in response if we aren't even using it?
+        if login_json is None or 'sha' not in login_json:
+            self.logger.debug(f"Search query returned empty data. Moving on. Data: {login_json}")
+            return None
+
+        return self._user_response_to_user(login_json['author']), self._user_response_to_user(login_json['author'])
+
     def _user_response_to_user(self, user_data: dict) -> AugurForgeUser:
         """Transform a user object from GitHub's API into an AugurForgeUser for passing around Augur.
 

@@ -388,25 +388,3 @@ def get_login_with_supplemental_data(logger, auth, commit_data):
 
     return match['login']
 
-def get_login_with_commit_hash(logger, auth, commit_data, repo_id):
-
-    # Get endpoint for login from hash
-    url = create_endpoint_from_commit_sha(
-        logger, commit_data['hash'], repo_id)
-
-    #TODO: here.
-    # Send api request
-    github_data_access = GithubDataAccess(auth, logger)
-    login_json = github_data_access.get_resource(url)
-
-    # TODO: Why are we returning None if 'sha' is not in response if we aren't even using it?
-    if login_json is None or 'sha' not in login_json:
-        logger.debug(f"Search query returned empty data. Moving on. Data: {login_json}")
-        return None
-
-    try:
-        match = login_json['author']['login']
-    except:
-        match = None
-
-    return match
