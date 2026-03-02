@@ -144,16 +144,20 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
         # TODO: why are we calling a batch insert for one contributor
         batch_insert_contributors(logger, [cntrb])
 
-        try:
-            # Update alias after insertion. Insertion needs to happen first so we can get the autoincrementkey
-            insert_alias(logger, cntrb, emailFromCommitData)
-        except LookupError as e:
-            logger.error(
-                ''.join(traceback.format_exception(None, e, e.__traceback__)))
-            logger.error(
-                f"Contributor id not able to be found in database despite the user_id existing. Something very wrong is happening. Error: {e}")
-            return 
-        
+
+        if user_data.cntrb_canonical != emailFromCommitData:
+            try:
+                # Update alias after insertion. Insertion needs to happen first so we can get the autoincrementkey
+                insert_alias(logger, cntrb, emailFromCommitData)
+            except LookupError as e:
+                logger.error(
+                    ''.join(traceback.format_exception(None, e, e.__traceback__)))
+                logger.error(
+                    f"Contributor id not able to be found in database despite the user_id existing. Something very wrong is happening. Error: {e}")
+                return 
+        else:
+            logger.info(f"Skipping insert of contributor email used in main table for {cntrb['cntrb_id']}")
+            
 
         # Resolve any unresolved emails if we get to this point.
         # They will get added to the alias table later
