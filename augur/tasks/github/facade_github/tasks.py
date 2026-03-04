@@ -66,11 +66,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             raise KeyError
 
         # Else put into a more readable local var
-
-        split_git = result.repo_git.split('/')
-        owner = split_git[-2]
-        repo = result.repo_name
-        
+        owner, repo = get_owner_repo(result.repo_git)
 
         # Try to get the login from the commit sha
         if login == None or login == "":
