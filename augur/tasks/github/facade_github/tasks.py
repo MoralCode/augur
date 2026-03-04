@@ -56,6 +56,7 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             logger.debug("Failed local login lookup")
         else:
             login = contributors_with_matching_name[0].gh_login
+            # TODO: verify the match some other way, maybe by comparing the github user id?
 
 
         #stmnt = s.select(Repo.repo_path, Repo.repo_name).where(Repo.repo_id == repo_id)
