@@ -91,12 +91,12 @@ def process_commit_metadata(logger, auth, contributorQueue, repo_id, platform_id
             logger.warning(f"User of {login} not found on github. Skipping...")
             continue
 
-        # Use the email found in the commit data if api data is NULL
-        emailFromCommitData = contributor['email_raw'] if 'email_raw' in contributor else contributor['email']
+        # the email found in the commit data to be used if api data is NULL
+        emailFromCommitData = contributor.get('email_raw', contributor.get('email'))
 
 
-        # Get name from commit if not found by GitHub
-        name_field = contributor['commit_name'] if 'commit_name' in contributor else contributor['name']
+        # Get name from commit to be used if a name is not found by GitHub
+        name_field = contributor.get('commit_name', contributor.get('name'))
 
 
         if user_data.cntrb_canonical is None:
